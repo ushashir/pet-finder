@@ -4,7 +4,7 @@ Pet Finder App
 * Ushahemba Shir
 
 ## Description
-This pet finder app was created in 2020 **purely with vanilla javascript**. following **Brad Traversy** practical JavaScript practice Videos.
+This pet finder app was created in 2020 following **Brad Traversy** practical JavaScript practice Videos.
 
 ## Features
 * Online market store with products and prices stated.
@@ -12,8 +12,10 @@ This pet finder app was created in 2020 **purely with vanilla javascript**. foll
 * Items can be deleted from cart list
 
 ## Dependencies
-* Bootstrap
-* Font Awesome CSS for icons
-* jQuery
-* Web fonts
+* Bootstrap 4
+* Pet finder API
+* babel-preset-env
+* fet
+* fetch-json
+* fetch-jsonp
 

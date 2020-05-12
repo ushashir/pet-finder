@@ -117,133 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/fetch-jsonp/build/fetch-jsonp.js":[function(require,module,exports) {
-var define;
-var global = arguments[3];
-(function (global, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(['exports', 'module'], factory);
-  } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-    factory(exports, module);
-  } else {
-    var mod = {
-      exports: {}
-    };
-    factory(mod.exports, mod);
-    global.fetchJsonp = mod.exports;
-  }
-})(this, function (exports, module) {
-  'use strict';
-
-  var defaultOptions = {
-    timeout: 5000,
-    jsonpCallback: 'callback',
-    jsonpCallbackFunction: null
-  };
-
-  function generateCallbackFunction() {
-    return 'jsonp_' + Date.now() + '_' + Math.ceil(Math.random() * 100000);
-  }
-
-  function clearFunction(functionName) {
-    // IE8 throws an exception when you try to delete a property on window
-    // http://stackoverflow.com/a/1824228/751089
-    try {
-      delete window[functionName];
-    } catch (e) {
-      window[functionName] = undefined;
-    }
-  }
-
-  function removeScript(scriptId) {
-    var script = document.getElementById(scriptId);
-    if (script) {
-      document.getElementsByTagName('head')[0].removeChild(script);
-    }
-  }
-
-  function fetchJsonp(_url) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    // to avoid param reassign
-    var url = _url;
-    var timeout = options.timeout || defaultOptions.timeout;
-    var jsonpCallback = options.jsonpCallback || defaultOptions.jsonpCallback;
-
-    var timeoutId = undefined;
-
-    return new Promise(function (resolve, reject) {
-      var callbackFunction = options.jsonpCallbackFunction || generateCallbackFunction();
-      var scriptId = jsonpCallback + '_' + callbackFunction;
-
-      window[callbackFunction] = function (response) {
-        resolve({
-          ok: true,
-          // keep consistent with fetch API
-          json: function json() {
-            return Promise.resolve(response);
-          }
-        });
-
-        if (timeoutId) clearTimeout(timeoutId);
-
-        removeScript(scriptId);
-
-        clearFunction(callbackFunction);
-      };
-
-      // Check if the user set their own params, and if not add a ? to start a list of params
-      url += url.indexOf('?') === -1 ? '?' : '&';
-
-      var jsonpScript = document.createElement('script');
-      jsonpScript.setAttribute('src', '' + url + jsonpCallback + '=' + callbackFunction);
-      if (options.charset) {
-        jsonpScript.setAttribute('charset', options.charset);
-      }
-      jsonpScript.id = scriptId;
-      document.getElementsByTagName('head')[0].appendChild(jsonpScript);
-
-      timeoutId = setTimeout(function () {
-        reject(new Error('JSONP request to ' + _url + ' timed out'));
-
-        clearFunction(callbackFunction);
-        removeScript(scriptId);
-        window[callbackFunction] = function () {
-          clearFunction(callbackFunction);
-        };
-      }, timeout);
-
-      // Caught if got 404/500
-      jsonpScript.onerror = function () {
-        reject(new Error('JSONP request to ' + _url + ' failed'));
-
-        clearFunction(callbackFunction);
-        removeScript(scriptId);
-        if (timeoutId) clearTimeout(timeoutId);
-      };
-    });
-  }
-
-  // export as global function
-  /*
-  let local;
-  if (typeof global !== 'undefined') {
-    local = global;
-  } else if (typeof self !== 'undefined') {
-    local = self;
-  } else {
-    try {
-      local = Function('return this')();
-    } catch (e) {
-      throw new Error('polyfill failed because global object is unavailable in this environment');
-    }
-  }
-  local.fetchJsonp = fetchJsonp;
-  */
-
-  module.exports = fetchJsonp;
-});
-},{}],"js/validate.js":[function(require,module,exports) {
+})({"js/validate.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -275,61 +149,7 @@ function showAlert(message, className) {
     return document.querySelector('.alert').remove();
   }, 3000); //clear alert after 3 seconds
 }
-},{}],"js/main.js":[function(require,module,exports) {
-"use strict";
-
-var _fetchJsonp = _interopRequireDefault(require("fetch-jsonp"));
-
-var _validate = require("./validate");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var petForm = document.querySelector('#pet-form');
-petForm.addEventListener('submit', fetchAnimals); // Fetch Animals From API
-
-function fetchAnimals(e) {
-  e.preventDefault(); // Get User Input
-
-  var animal = document.querySelector('#animal').value;
-  var zip = document.querySelector('#zip').value; // Validate Zip
-
-  if (!(0, _validate.isValidZip)(zip)) {
-    (0, _validate.showAlert)('Please Enter A Valid Zipcode', 'danger');
-    return;
-  } // Fetch Pets
-
-
-  (0, _fetchJsonp.default)("http://api.petfinder.com/pet.find?format=json&key=YOURKEYHERE&animal=".concat(animal, "&location=").concat(zip, "&callback=callback"), {
-    jsonpCallbackFunction: 'callback'
-  }).then(function (res) {
-    return res.json();
-  }).then(function (data) {
-    return console.log(data.petfinder.pets.pet);
-  }).catch(function (err) {
-    return console.log(err);
-  });
-} // JSONP Callback
-
-
-function callback(data) {
-  console.log(data);
-} // Show Listings Of Pets
-
-
-function showAnimals(pets) {
-  var results = document.querySelector('#results'); // Clear First
-
-  results.innerHTML = ''; // Loop Through Pets
-
-  pets.forEach(function (pet) {
-    console.log(pet);
-    var div = document.createElement('div');
-    div.classList.add('card', 'card-body', 'mb-3');
-    div.innerHTML = "\n       <div class=\"row\">\n         <div class=\"col-sm-6\">\n           <h4>".concat(pet.name.$t, " (").concat(pet.age.$t, ")</h4>\n           <p class=\"text-secondary\">").concat(pet.breeds.breed.$t, "</p>\n           <p>").concat(pet.contact.address1.$t, " ").concat(pet.contact.city.$t, " ").concat(pet.contact.state.$t, " ").concat(pet.contact.zip.$t, "</p>\n           <ul class=\"list-group\">\n             <li class=\"list-group-item\">Phone: ").concat(pet.contact.phone.$t, "</li>\n             ").concat(pet.contact.email.$t ? "<li class=\"list-group-item\">Email: ".concat(pet.contact.email.$t, "</li>") : "", "\n             <li class=\"list-group-item\">Shelter ID: ").concat(pet.shelterId.$t, "</li>\n           </ul>\n         </div>\n         <div class=\"col-sm-6 text-center\">\n           <img class=\"img-fluid rounded-circle mt-2\" src=\"").concat(pet.media.photos.photo[3].$t, "\">\n         </div>\n       </div>\n     ");
-    results.appendChild(div);
-  });
-}
-},{"fetch-jsonp":"node_modules/fetch-jsonp/build/fetch-jsonp.js","./validate":"js/validate.js"}],"../../../../Users/user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"../../../../Users/user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -533,5 +353,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../../Users/user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/main.js"], null)
-//# sourceMappingURL=/main.fb6bbcaf.js.map
+},{}]},{},["../../../../Users/user/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/validate.js"], null)
+//# sourceMappingURL=/validate.b0eaa56c.js.map
