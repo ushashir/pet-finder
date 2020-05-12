@@ -7,9 +7,7 @@ Pet Finder App
 This pet finder app was created in 2020 following **Brad Traversy** practical JavaScript practice Videos.
 
 ## Features
-* Online market store with products and prices stated.
-* Visitors can select items to buy and their shopping cart will be automatically generated for checkout
-* Items can be deleted from cart list
+* Uses pet finder API to find pets when the user enters pet name and zip code
 
 ## Dependencies
 * Bootstrap 4
